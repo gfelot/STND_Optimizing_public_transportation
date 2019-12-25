@@ -1,6 +1,6 @@
 """Configures a Kafka Connector for Postgres Station data"""
 import logging
-
+import json
 import requests
 
 logger = logging.getLogger(__name__)
