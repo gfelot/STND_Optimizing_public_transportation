@@ -75,8 +75,7 @@ class KafkaConsumer:
             num_results = 1
             while num_results > 0:
                 num_results = self._consume()
-            await
-            gen.sleep(self.sleep_secs)
+            await gen.sleep(self.sleep_secs)
 
     def _consume(self):
         """Polls for a message. Returns 1 if a message was received, 0 otherwise"""
