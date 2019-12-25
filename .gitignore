@@ -2,6 +2,8 @@
 # Created by https://www.gitignore.io/api/macos,pycharm+all
 # Edit at https://www.gitignore.io/?templates=macos,pycharm+all
 
+**/venv/**
+
 ### macOS ###
 # General
 .DS_Store

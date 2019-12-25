@@ -4,7 +4,6 @@ import logging
 import confluent_kafka
 from confluent_kafka import Consumer
 from confluent_kafka.avro import AvroConsumer
-from confluent_kafka.avro.serializer import SerializerError
 from tornado import gen
 
 logger = logging.getLogger(__name__)
