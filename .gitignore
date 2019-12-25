@@ -3,6 +3,7 @@
 # Edit at https://www.gitignore.io/?templates=macos,pycharm+all
 
 **/venv/**
+__pycache__
 
 ### macOS ###
 # General
