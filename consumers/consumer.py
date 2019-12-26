@@ -4,6 +4,7 @@ import logging
 import confluent_kafka
 from confluent_kafka import Consumer
 from confluent_kafka.avro import AvroConsumer
+from confluent_kafka.avro.serializer import SerializerError
 from tornado import gen
 
 logger = logging.getLogger(__name__)
@@ -29,42 +30,34 @@ class KafkaConsumer:
         self.offset_earliest = offset_earliest
 
         # TODO: Configure the broker properties below. Make sure to reference the project README
-        #  and use the Host URL for Kafka and Schema Registry!
+        # and use the Host URL for Kafka and Schema Registry!
+
         self.broker_properties = {
-            "broker.id": 0,
-            "log.dirs": "/tmp/kafka-logs1",
-            "zookeeper.connect": "localhost:2181"
+            "group.id": "consumer_group",
+            "bootstrap.servers": "PLAINTEXT://localhost:9092",
+            "auto.offset.reset": "earliest"
         }
 
         # TODO: Create the Consumer, using the appropriate type.
         if is_avro is True:
             self.broker_properties["schema.registry.url"] = "http://localhost:8081"
-            self.consumer = AvroConsumer({
-                'bootstrap.servers': 'PLAINTEXT://localhost:9092',
-                'group.id': 'station',
-                'schema.registry.url': 'http://localhost:8081',
-                'auto.offset.reset': 'earliest'
-            })
+            self.consumer = AvroConsumer(self.broker_properties)
         else:
-            self.consumer = Consumer(
-                {
-                    'bootstrap.servers': 'PLAINTEXT://localhost:9092',
-                    'group.id': 'station',
-                    'auto.offset.reset': 'earliest'
-                })
+            self.consumer = Consumer(self.broker_properties)
 
         # TODO: Configure the AvroConsumer and subscribe to the topics. Make sure to think about
-        #  how the `on_assign` callback should be invoked.
+        # how the `on_assign` callback should be invoked.
         self.consumer.subscribe([self.topic_name_pattern], on_assign=self.on_assign)
 
     def on_assign(self, consumer, partitions):
         """Callback for when topic assignment takes place"""
         # TODO: If the topic is configured to use `offset_earliest` set the partition offset to
-        #  the beginning or earliest
-        logger.info("on_assign is incomplete - skipping")
+        # the beginning or earliest
+        logger.info("on_assign completed")
         for partition in partitions:
-            if self.offset_earliest:
+            if self.offset_earliest is True:
                 partition.offset = confluent_kafka.OFFSET_BEGINNING
+        #             consumer.seek(partition)
 
         logger.info("partitions assigned for %s", self.topic_name_pattern)
         consumer.assign(partitions)
@@ -80,19 +73,20 @@ class KafkaConsumer:
     def _consume(self):
         """Polls for a message. Returns 1 if a message was received, 0 otherwise"""
         # TODO: Poll Kafka for messages. Make sure to handle any errors or exceptions.
-        #  Additionally, make sure you return 1 when a message is processed, and 0 when no message
-        #  is retrieved.
-        message = self.consumer.poll(self.consume_timeout)
-        if message is None:
-            return 0
-        elif message.error() is not None:
-            return 0
-        else:
-            self.message_handler(message)
-            print("topic", message.topic())
-            return 1
+        # Additionally, make sure you return 1 when a message is processed, and 0 when no message
+        # is retrieved.
+        while True:
+            message = self.consumer.poll(1.0)
+            if message is 0:
+                print("no message received")
+            elif message.error() is not None:
+                print(f"message error {message.error()}")
+            else:
+                print(f"{message} consumed")
+        logger.info("_consume completed")
+        return 0
 
     def close(self):
         """Cleans up any open kafka consumers"""
-        # TODO: Cleanup the kafka consumer
+        logger.debug("closing consumer")
         self.consumer.close()

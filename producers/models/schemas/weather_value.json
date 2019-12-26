@@ -1,9 +1,9 @@
 {
-    "type": "record",
-    "name": "weather.value",
-    "namespace": "com.transitchicago",
-    "fields": [
-        {"name": "temperature", "type": "double"},
-        {"name": "status", "type": "string"}
-    ]
+  "namespace": "com.udacity",
+  "type": "record",
+  "name": "weather.value",
+  "fields": [
+    {"name": "temperature", "type": "float"},
+    {"name": "status", "type": "string"}
+  ]
 }
