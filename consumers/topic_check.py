@@ -7,9 +7,11 @@ def topic_exists(topic):
     topic_metadata = client.list_topics(timeout=5)
     return topic in topic_metadata.topics
 
+
 def contains_substring(to_test, substr):
     _before, match, _after = to_test.partition(substr)
     return len(match) > 0
+
 
 def topic_pattern_match(pattern):
     """
